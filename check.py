@@ -7,9 +7,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 SRC = "sources.txt"
 IPTV = "iptv.txt"
 OUT_TXT = "output/multi.txt"
-OUT_JSON = "output/multi.json"
+OUT_JSON = "output/tvbox.json"
 OUT_M3U = "output/iptv.m3u"
-OUT_MULTI_JSON = "output/multirepo.json"
+OUT_MULTI_JSON = "output/multihouse.json"
 
 TIMEOUT = 6
 MAX_WORKERS = 8
