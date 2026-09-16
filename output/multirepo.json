@@ -1,0 +1,54 @@
+{
+  "urls": [
+    {
+      "name": "高天流云",
+      "url": "https://raw.githubusercontent.com/gaotianliuyun/gao/master/js.json"
+    },
+    {
+      "name": "饭太硬",
+      "url": "http://饭太硬.top/tv"
+    },
+    {
+      "name": "小盒子",
+      "url": "http://xhztv.top/xhz"
+    },
+    {
+      "name": "王二小网盘4K",
+      "url": "https://9280.kstore.vip/newwex.json"
+    },
+    {
+      "name": "饭太硬备份",
+      "url": "http://fty.888484.xyz/tv"
+    },
+    {
+      "name": "饭太硬备份2",
+      "url": "http://www.饭太硬.net/tv"
+    }
+  ],
+  "storeHouse": [
+    {
+      "sourceName": "高天流云",
+      "sourceUrl": "https://raw.githubusercontent.com/gaotianliuyun/gao/master/js.json"
+    },
+    {
+      "sourceName": "饭太硬",
+      "sourceUrl": "http://饭太硬.top/tv"
+    },
+    {
+      "sourceName": "小盒子",
+      "sourceUrl": "http://xhztv.top/xhz"
+    },
+    {
+      "sourceName": "王二小网盘4K",
+      "sourceUrl": "https://9280.kstore.vip/newwex.json"
+    },
+    {
+      "sourceName": "饭太硬备份",
+      "sourceUrl": "http://fty.888484.xyz/tv"
+    },
+    {
+      "sourceName": "饭太硬备份2",
+      "sourceUrl": "http://www.饭太硬.net/tv"
+    }
+  ]
+}
