@@ -323,22 +323,26 @@ def main():
     log(f"单仓 sites 数量：{len(single['sites'])}")
 
 def build_multirepo_json(alive):
-    """
-    生成标准多仓 JSON（给影视仓「仓库/多仓」入口用）
-    格式：{"list":[{"name":"...","url":"..."}, ...]}
-    """
-    items = []
+    urls = []
     seen = set()
     for r in alive:
         url = r["url"]
         if url in seen:
             continue
         seen.add(url)
-        items.append({
+        urls.append({
             "name": r["name"],
             "url": url,
         })
-    return {"list": items}
+
+    # 安卓哥影视仓 3.3.7 兼容：两种字段都给
+    return {
+        "urls": urls,
+        "storeHouse": [
+            {"sourceName": x["name"], "sourceUrl": x["url"]}
+            for x in urls
+        ],
+    }
 
 if __name__ == "__main__":
     main()
