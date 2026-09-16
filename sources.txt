@@ -1,4 +1,5 @@
 饭太硬,http://饭太硬.top/tv
+饭太硬备份,http://fty.888484.xyz/tv
 肥猫,http://肥猫.com/
 巧技,http://pandown.pro/tvbox/tvbox.json
 高天流云,https://raw.githubusercontent.com/gaotianliuyun/gao/master/js.json
