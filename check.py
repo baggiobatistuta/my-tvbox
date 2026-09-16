@@ -14,7 +14,7 @@ OUT_MULTI_JSON = "output/multirepo.json"
 TIMEOUT = 6
 MAX_WORKERS = 8
 TOO_SLOW = 5.0  # 响应超过 5 秒，虽然活但排最后/可丢弃
-MAX_SITES = 120          # 单仓 tvbox.json 最多保留站点数
+MAX_SITES = 80          # 单仓 tvbox.json 最多保留站点数
 PRIORITY_KEYWORDS = ["4K", "4k", "UHD", "豆瓣", "高清", "热播", "网盘", "旗舰"]
 
 HEADERS = {
