@@ -4,3 +4,11 @@
 巧技,http://pandown.pro/tvbox/tvbox.json
 高天流云,https://raw.githubusercontent.com/gaotianliuyun/gao/master/js.json
 南风,https://agit.ai/Yoursmile7/TVBox/raw/branch/master/XC.json
+饭太硬备份,http://www.饭太硬.net/tv
+巧技新域,https://cdn.qiaoji8.com/tvbox.json
+YSC多仓,https://ysc.mulink.top/ts/multi.json
+欧歌摸鱼,https://tv.nxog.top/moyu.json
+天微单仓,https://gitee.com/tvkj/tw/raw/main/svip.json
+小盒子,http://xhztv.top/xhz
+王二小网盘4K,https://9280.kstore.vip/newwex.json
+FongMi官方,https://raw.githubusercontent.com/FongMi/TV/refs/heads/release/json/config.json
