@@ -2,8 +2,9 @@
 饭太硬备份,http://fty.888484.xyz/tv
 肥猫,http://肥猫.com/
 巧技,http://pandown.pro/tvbox/tvbox.json
+高天流云,https://raw.githubusercontent.com/gaotianliuyun/gao/master/js.json
 南风,https://agit.ai/Yoursmile7/TVBox/raw/branch/master/XC.json
-饭太硬备份,http://www.饭太硬.net/tv
+饭太硬备份2,http://www.饭太硬.net/tv
 巧技新域,https://cdn.qiaoji8.com/tvbox.json
 YSC多仓,https://ysc.mulink.top/ts/multi.json
 欧歌摸鱼,https://tv.nxog.top/moyu.json
