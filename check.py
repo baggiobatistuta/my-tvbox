@@ -9,6 +9,7 @@ IPTV = "iptv.txt"
 OUT_TXT = "output/multi.txt"
 OUT_JSON = "output/tvbox.json"
 OUT_M3U = "output/iptv.m3u"
+OUT_MULTI_JSON = "output/multirepo.json"
 
 TIMEOUT = 6
 MAX_WORKERS = 8
@@ -273,12 +274,19 @@ def main():
     os.makedirs("output", exist_ok=True)
     with open(OUT_TXT, "w", encoding="utf-8") as f:
         for r in results:
-            f.write(f"{r['name']},{r['url']}\n")
+            if r["kind"] in ("txt", "other"):
+                f.write(f"{r['name']},{r['url']}\n")
 
     # 输出单仓 json
     single = build_single_json(results)
     with open(OUT_JSON, "w", encoding="utf-8") as f:
         json.dump(single, f, ensure_ascii=False, indent=2)
+        
+    multirepo = build_multirepo_json(results)
+    with open(OUT_MULTI_JSON, "w", encoding="utf-8") as f:
+        json.dump(multirepo, f, ensure_ascii=False, indent=2)
+    
+    
     # ========== 直播源处理 ==========
     iptv_results = []
     if os.path.exists(IPTV):
@@ -314,6 +322,23 @@ def main():
         log(f"  {r['cost']}s  {r['name']}  [{r['kind']}]")
     log(f"单仓 sites 数量：{len(single['sites'])}")
 
+def build_multirepo_json(alive):
+    """
+    生成标准多仓 JSON（给影视仓「仓库/多仓」入口用）
+    格式：{"list":[{"name":"...","url":"..."}, ...]}
+    """
+    items = []
+    seen = set()
+    for r in alive:
+        url = r["url"]
+        if url in seen:
+            continue
+        seen.add(url)
+        items.append({
+            "name": r["name"],
+            "url": url,
+        })
+    return {"list": items}
 
 if __name__ == "__main__":
     main()
