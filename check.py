@@ -13,6 +13,8 @@ OUT_M3U = "output/iptv.m3u"
 TIMEOUT = 6
 MAX_WORKERS = 8
 TOO_SLOW = 5.0  # 响应超过 5 秒，虽然活但排最后/可丢弃
+MAX_SITES = 120          # 单仓 tvbox.json 最多保留站点数
+PRIORITY_KEYWORDS = ["4K", "4k", "UHD", "豆瓣", "高清", "热播", "网盘", "旗舰"]
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
@@ -178,41 +180,65 @@ def check_one(item):
         return None
 
 
+def site_priority(s):
+    name = (s.get("name") or s.get("key") or "")
+    score = 0
+    for kw in PRIORITY_KEYWORDS:
+        if kw.lower() in name.lower():
+            score += 1
+    return score
+
+
 def build_single_json(alive):
-    """
-    把每个活着的 JSON 源里的 sites 合并进来
-    按 key 去重，保留第一次出现的
-    """
     sites = []
     seen_keys = set()
-    lives = []
-    parses = []
-    spider = ""
 
-    for item in alive:
-        if item["kind"] != "json":
-            continue
+    # 1) 先按“源响应速度”排
+    json_sources = [a for a in alive if a["kind"] == "json"]
+
+    # 2) 每个 JSON 源里的站点，带“优先级分”
+    ranked = []
+    for src in json_sources:
         try:
-            r = requests.get(item["url"], headers=HEADERS, timeout=TIMEOUT)
+            r = requests.get(src["url"], headers=HEADERS, timeout=TIMEOUT)
             data = r.json()
         except Exception:
             continue
 
-        # store.sites 也兼容
-        top_sites = data.get("sites") if isinstance(data, dict) else None
+        top = data.get("sites") or {}
         store = data.get("store", {}) if isinstance(data, dict) else {}
         store_sites = store.get("sites") if isinstance(store, dict) else None
-        src_sites = top_sites or store_sites or []
+        src_sites = top if isinstance(top, list) else []
+        if not src_sites and isinstance(store_sites, list):
+            src_sites = store_sites
 
         for s in src_sites:
             key = s.get("key") or s.get("name")
-            if not key:
-                continue
-            if key in seen_keys:
+            if not key or key in seen_keys:
                 continue
             seen_keys.add(key)
-            sites.append(s)
+            ranked.append({
+                "site": s,
+                "src_cost": src["cost"],
+                "prio": site_priority(s),
+            })
 
+    # 3) 排序：优先级高 > 源速度快 > key 稳定
+    ranked.sort(key=lambda x: (-x["prio"], x["src_cost"]))
+
+    # 4) 只留前 MAX_SITES 个
+    for item in ranked[:MAX_SITES]:
+        sites.append(item["site"])
+
+    # lives / parses 不变
+    lives = []
+    parses = []
+    spider = ""
+    for item in json_sources:
+        try:
+            data = requests.get(item["url"], headers=HEADERS, timeout=TIMEOUT).json()
+        except Exception:
+            continue
         for lv in data.get("lives", []) or []:
             lives.append(lv)
         for p in data.get("parses", []) or []:
