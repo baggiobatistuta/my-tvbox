@@ -260,6 +260,9 @@ def build_multirepo_json(alive):
     只使用 urls 字段，不使用 storeHouse / list
     """
     urls = []
+    myurl = r"https://fastly.jsdelivr.net/gh/baggiobatistuta/my-tvbox@main/output/dancang.json"
+    urls.append(({"name": r"Alex的影视仓","url": myurl,})
+    
     seen = set()
     SKIP_SUFFIX = (".html", ".php", "/")
     for r in alive:
