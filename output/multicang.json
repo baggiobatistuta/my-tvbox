@@ -1,6 +1,10 @@
 {
   "urls": [
     {
+      "name": "Alex的影视仓",
+      "url": "https://fastly.jsdelivr.net/gh/baggiobatistuta/my-tvbox@main/output/dancang.json"
+    },
+    {
       "name": "高天流云",
       "url": "https://raw.githubusercontent.com/gaotianliuyun/gao/master/js.json"
     },
