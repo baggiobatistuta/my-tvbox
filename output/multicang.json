@@ -5,24 +5,20 @@
       "url": "https://fastly.jsdelivr.net/gh/baggiobatistuta/my-tvbox@main/output/dancang.json"
     },
     {
-      "name": "高天流云",
-      "url": "https://raw.githubusercontent.com/gaotianliuyun/gao/master/js.json"
-    },
-    {
-      "name": "小盒子",
-      "url": "http://xhztv.top/xhz"
+      "name": "dxawi",
+      "url": "https://dxawi.github.io/0/0.json"
     },
     {
       "name": "王二小网盘4K",
       "url": "https://9280.kstore.vip/newwex.json"
     },
     {
-      "name": "饭太硬备份",
-      "url": "http://fty.888484.xyz/tv"
+      "name": "高天流云配置",
+      "url": "https://fastly.jsdelivr.net/gh/gaotianliuyun/gao@master/js.json"
     },
     {
-      "name": "饭太硬",
-      "url": "http://www.饭太硬.cc/tv"
+      "name": "俊哥",
+      "url": "http://home.jundie.top:81/top98.json"
     }
   ]
 }
