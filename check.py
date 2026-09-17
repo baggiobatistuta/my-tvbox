@@ -257,6 +257,7 @@ def build_multirepo_json(alive):
     urls.append({"name": r"小盒子", "url": "http://xhztv.top/xhz"})
     urls.append({"name": r"饭太硬", "url": "http://www.饭太硬.cc/tv"})
     urls.append({"name": r"饭太硬备份", "url": "http://fty.888484.xyz/tv"})
+    urls.append({"name": r"肥猫", "url": "http://肥猫.net"})
     seen = set()
     for r in alive:
         if r["kind"] != "json":
