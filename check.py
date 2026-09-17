@@ -254,6 +254,24 @@ def build_single_json(alive):
         "lives": lives,
     }
 
+def build_multirepo_json(alive):
+    """
+    生成影视仓 3.3.7 兼容的多仓 JSON
+    只使用 urls 字段，不使用 storeHouse / list
+    """
+    urls = []
+    seen = set()
+    SKIP_SUFFIX = (".html", ".php", "/")
+    for r in alive:
+        url = r["url"]
+        if any(url.endswith(s) for s in SKIP_SUFFIX):
+            continue
+        if url in seen:
+            continue
+        seen.add(url)
+        urls.append({"name": r["name"],"url": url,})
+    return {"urls": urls}
+
 
 def main():
     sources = load_sources()
@@ -321,27 +339,6 @@ def main():
     for r in results:
         log(f"  {r['cost']}s  {r['name']}  [{r['kind']}]")
     log(f"单仓 sites 数量：{len(single['sites'])}")
-
-def build_multirepo_json(alive):
-    """
-    生成影视仓 3.3.7 兼容的多仓 JSON
-    只使用 urls 字段，不使用 storeHouse / list
-    """
-    urls = []
-    seen = set()
-    SKIP_SUFFIX = (".html", ".php", "/")
-    for r in alive:
-        url = r["url"]
-        if any(url.endswith(s) for s in SKIP_SUFFIX):
-            continue
-        if url in seen:
-            continue
-        seen.add(url)
-        urls.append({
-            "name": r["name"],
-            "url": url,
-        })
-    return {"urls": urls}
 
 if __name__ == "__main__":
     main()
