@@ -13,8 +13,8 @@ OUT_MULTI_JSON = "output/multicang.json"
 
 TIMEOUT = 6
 MAX_WORKERS = 8
-TOO_SLOW = 5.0  # 响应超过 5 秒，虽然活但排最后/可丢弃
-MAX_SITES = 80          # 单仓 tvbox.json 最多保留站点数
+TOO_SLOW = 5.0
+MAX_SITES = 80
 PRIORITY_KEYWORDS = ["4K", "4k", "UHD", "豆瓣", "高清", "热播", "网盘", "旗舰"]
 
 HEADERS = {
@@ -42,7 +42,6 @@ def load_sources():
     return out
 
 def load_sources_from(path):
-    """通用：从任意 txt 读取 name,url"""
     if not os.path.exists(path):
         return []
     out = []
@@ -58,8 +57,12 @@ def load_sources_from(path):
     return out
 
 
+def looks_like_html(text):
+    t = text.lstrip().lower()
+    return t.startswith("<!doctype") or t.startswith("<html")
+
+
 def check_iptv(item):
-    """检测直播源：支持 .m3u / .txt / live.json"""
     name, url = item
     start = time.time()
     try:
@@ -71,9 +74,7 @@ def check_iptv(item):
         if not text:
             return None
 
-        # m3u 格式
         if ".m3u" in url.lower() or text.startswith("#EXTM3U"):
-            # 提取第一个 http 流地址验证
             for line in text.splitlines():
                 line = line.strip()
                 if line.startswith("http"):
@@ -87,13 +88,11 @@ def check_iptv(item):
                     }
             return None
 
-        # json 格式（FongMi live.json 之类）
         if url.lower().endswith(".json") or text.startswith("{"):
             try:
                 data = r.json()
             except Exception:
                 return None
-            # 兼容 {channels:[{name,urls:[]}]} 或 [{name,url}]
             channels = data.get("channels") if isinstance(data, dict) else data
             if isinstance(channels, list) and len(channels) > 0:
                 ch = channels[0]
@@ -108,7 +107,6 @@ def check_iptv(item):
                 }
             return None
 
-        # 普通 txt：每行一个 m3u 链接
         for line in text.splitlines():
             line = line.strip()
             if line.startswith("http") and (".m3u" in line or "live" in line):
@@ -125,6 +123,7 @@ def check_iptv(item):
     except Exception:
         return None
 
+
 def check_one(item):
     name, url = item
     start = time.time()
@@ -134,51 +133,47 @@ def check_one(item):
         if r.status_code != 200:
             return None
         text = r.text.strip()
-        if not text:
+        if not text or looks_like_html(text):
             return None
 
-        # 情况 1：JSON 单仓 / 多仓
+        # JSON 单仓 / 配置仓
         if url.lower().endswith(".json") or text.startswith("{") or text.startswith("["):
             try:
                 data = r.json()
             except Exception:
                 return None
-            # 有 sites 才是真点播源
             sites = data.get("sites") if isinstance(data, dict) else None
             store = data.get("store", {}) if isinstance(data, dict) else {}
             store_sites = store.get("sites") if isinstance(store, dict) else None
-            if (isinstance(sites, list) and len(sites) > 0) or \
-               (isinstance(store_sites, list) and len(store_sites) > 0):
-                return {
-                    "name": name,
-                    "url": url,
-                    "cost": round(cost, 3),
-                    "kind": "json",
-                }
-            return None
+            ok = (
+                isinstance(sites, list) and len(sites) > 0
+            ) or (
+                isinstance(store_sites, list) and len(store_sites) > 0
+            )
+            if not ok:
+                return None
+            return {"name": name, "url": url, "cost": round(cost, 3), "kind": "json"}
 
-        # 情况 2：多仓 txt（一行一个源）
+        # 多仓 txt
         if url.lower().endswith(".txt") or "\n" in text:
             lines = [x.strip() for x in text.splitlines() if x.strip() and "," in x]
             if len(lines) >= 1:
-                return {
-                    "name": name,
-                    "url": url,
-                    "cost": round(cost, 3),
-                    "kind": "txt",
-                }
+                return {"name": name, "url": url, "cost": round(cost, 3), "kind": "txt"}
             return None
 
-        # 情况 3：其他能访问的也保留
-        return {
-            "name": name,
-            "url": url,
-            "cost": round(cost, 3),
-            "kind": "other",
-        }
+        return {"name": name, "url": url, "cost": round(cost, 3), "kind": "other"}
 
     except Exception:
         return None
+
+
+def is_remote_site(s):
+    """只保留 api 是完整 http(s) 的远程站点"""
+    api = s.get("api", "")
+    if not api.startswith("http"):
+        return False
+    bad = ("127.0.0.1", "socks5", "./", "csp_", "file://")
+    return not any(b in api for b in bad)
 
 
 def site_priority(s):
@@ -194,10 +189,8 @@ def build_single_json(alive):
     sites = []
     seen_keys = set()
 
-    # 1) 先按“源响应速度”排
     json_sources = [a for a in alive if a["kind"] == "json"]
 
-    # 2) 每个 JSON 源里的站点，带“优先级分”
     ranked = []
     for src in json_sources:
         try:
@@ -217,6 +210,8 @@ def build_single_json(alive):
             key = s.get("key") or s.get("name")
             if not key or key in seen_keys:
                 continue
+            if not is_remote_site(s):
+                continue
             seen_keys.add(key)
             ranked.append({
                 "site": s,
@@ -224,14 +219,11 @@ def build_single_json(alive):
                 "prio": site_priority(s),
             })
 
-    # 3) 排序：优先级高 > 源速度快 > key 稳定
     ranked.sort(key=lambda x: (-x["prio"], x["src_cost"]))
 
-    # 4) 只留前 MAX_SITES 个
     for item in ranked[:MAX_SITES]:
         sites.append(item["site"])
 
-    # lives / parses 不变
     lives = []
     parses = []
     spider = ""
@@ -254,25 +246,24 @@ def build_single_json(alive):
         "lives": lives,
     }
 
+
 def build_multirepo_json(alive):
     """
-    生成影视仓 3.3.7 兼容的多仓 JSON
-    只使用 urls 字段，不使用 storeHouse / list
+    多仓 JSON：只放 json 单仓，不放 txt/other/导航页
     """
     urls = []
     myurl = r"https://fastly.jsdelivr.net/gh/baggiobatistuta/my-tvbox@main/output/dancang.json"
-    urls.append({"name": r"Alex的影视仓","url": myurl,})
-    
+    urls.append({"name": r"Alex的影视仓", "url": myurl})
+
     seen = set()
-    SKIP_SUFFIX = (".html", ".php", "/")
     for r in alive:
-        url = r["url"]
-        if any(url.endswith(s) for s in SKIP_SUFFIX):
+        if r["kind"] != "json":
             continue
+        url = r["url"]
         if url in seen:
             continue
         seen.add(url)
-        urls.append({"name": r["name"],"url": url,})
+        urls.append({"name": r["name"], "url": url})
     return {"urls": urls}
 
 
@@ -288,26 +279,22 @@ def main():
             if res:
                 results.append(res)
 
-    # 按响应时间排序：快的在前
     results.sort(key=lambda x: x["cost"])
 
-    # 输出多仓 txt
     os.makedirs("output", exist_ok=True)
     with open(OUT_TXT, "w", encoding="utf-8") as f:
         for r in results:
             if r["kind"] in ("txt", "other"):
                 f.write(f"{r['name']},{r['url']}\n")
 
-    # 输出单仓 json
     single = build_single_json(results)
     with open(OUT_JSON, "w", encoding="utf-8") as f:
         json.dump(single, f, ensure_ascii=False, indent=2)
-        
+
     multirepo = build_multirepo_json(results)
     with open(OUT_MULTI_JSON, "w", encoding="utf-8") as f:
         json.dump(multirepo, f, ensure_ascii=False, indent=2)
-    
-    
+
     # ========== 直播源处理 ==========
     iptv_results = []
     if os.path.exists(IPTV):
@@ -323,10 +310,8 @@ def main():
 
         iptv_results.sort(key=lambda x: x["cost"])
 
-        # 合并进单仓 lives
         single["lives"] = [r["channel"] for r in iptv_results]
 
-        # 生成 m3u
         with open(OUT_M3U, "w", encoding="utf-8") as f:
             f.write("#EXTM3U\n")
             for r in iptv_results:
@@ -337,11 +322,11 @@ def main():
         for r in iptv_results:
             log(f"  {r['cost']}s  {r['name']}")
 
-    
     log(f"存活源：{len(results)} 个")
     for r in results:
         log(f"  {r['cost']}s  {r['name']}  [{r['kind']}]")
     log(f"单仓 sites 数量：{len(single['sites'])}")
+
 
 if __name__ == "__main__":
     main()
