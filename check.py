@@ -261,7 +261,7 @@ def build_multirepo_json(alive):
     """
     urls = []
     myurl = r"https://fastly.jsdelivr.net/gh/baggiobatistuta/my-tvbox@main/output/dancang.json"
-    urls.append(({"name": r"Alex的影视仓","url": myurl,})
+    urls.append({"name": r"Alex的影视仓","url": myurl,})
     
     seen = set()
     SKIP_SUFFIX = (".html", ".php", "/")
