@@ -1,6 +1,5 @@
 王二小网盘4K,https://9280.kstore.vip/newwex.json
 小盒子,http://xhztv.top/xhz
-高天流云配置,https://fastly.jsdelivr.net/gh/gaotianliuyun/gao@master/js.json
 HG影视,https://api.hgyx.vip/hgyx.json
 dxawi,https://dxawi.github.io/0/0.json
 俊哥,http://home.jundie.top:81/top98.json
