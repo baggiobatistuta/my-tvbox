@@ -255,6 +255,8 @@ def build_multirepo_json(alive):
     myurl = r"https://fastly.jsdelivr.net/gh/baggiobatistuta/my-tvbox@main/output/dancang.json"
     urls.append({"name": r"Alex的影视仓", "url": myurl})
     urls.append({"name": r"小盒子", "url": "http://xhztv.top/xhz"})
+    urls.append({"name": r"饭太硬", "url": "http://www.饭太硬.cc/tv"})
+    urls.append({"name": r"饭太硬备份", "url": "http://fty.888484.xyz/tv"})
     seen = set()
     for r in alive:
         if r["kind"] != "json":
